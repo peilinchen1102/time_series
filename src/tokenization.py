@@ -1,10 +1,10 @@
 import numpy as np
 import torch
-from src.feature_extraction import extract_features
+from src.feature_extraction import fixed_window_features, variable_window_features
 from numpy.typing import NDArray
-from typing import Union
+from typing import List
 
-def tokenize_time_series(time_series: NDArray[np.float64], window_size: int, num_features: int) -> torch.Tensor:
+def tokenize(time_series: NDArray[np.float64], window_size: int, overlap: int, change_points: List[int]) -> torch.Tensor:
     """
     Tokenizes the time series into fixed-size windows with extracted features.
     :param time_series: Array of time series data
@@ -13,11 +13,11 @@ def tokenize_time_series(time_series: NDArray[np.float64], window_size: int, num
     :return: Tensor of tokens
     """
     tokens = []
-    for i in range(0, len(time_series) - window_size + 1, window_size):
-        window = time_series[i:i + window_size]
-        features = extract_features(window)
-        token = np.concatenate([window, features])
-        tokens.append(token)
-    
-    tokens = np.array(tokens)
+    if window_size:
+        features = fixed_window_features(time_series, window_size, overlap)
+    else:
+        features = variable_window_features(time_series, change_points, overlap)
+
+    # TODO: change to use attention
+    tokens = np.concatenate([time_series, features])
     return torch.tensor(tokens, dtype=torch.float32)

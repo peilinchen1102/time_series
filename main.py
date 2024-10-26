@@ -1,21 +1,18 @@
 import torch
 from src.utils import load_data
-from src.tokenization import tokenize_time_series
+from src.tokenization import tokenize
 from src.positional_encoding import positional_encoding
 from src.transformer_model import TimeSeriesTransformer
 
-# Hyperparameters
-WINDOW_SIZE = 10
-NUM_FEATURES = 2
 
-def main() -> None:
+def main(fixed_window=True) -> None:
     # Load and prepare data
     time_series = load_data("data/time_series_data.csv")
     sequence_length = len(time_series) // WINDOW_SIZE
     input_dim = WINDOW_SIZE + NUM_FEATURES  # Dimension of token embedding
 
     # Tokenize the data
-    tokens = tokenize_time_series(time_series, WINDOW_SIZE, NUM_FEATURES)
+    tokens = tokenize(time_series, WINDOW_SIZE, NUM_FEATURES)
 
     # Generate positional encodings
     pos_encoding = positional_encoding(sequence_length, input_dim)
