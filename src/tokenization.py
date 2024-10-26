@@ -1,5 +1,6 @@
 import numpy as np
 import torch
+from src.feature_extraction import extract_features
 from numpy.typing import NDArray
 from typing import Union
 
