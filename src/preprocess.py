@@ -1,3 +1,5 @@
+import pandas as pd
+
 def remove_outliers():
     pass
 
@@ -9,3 +11,5 @@ def normalize():
 
 def smoothing():
     pass
+
+
