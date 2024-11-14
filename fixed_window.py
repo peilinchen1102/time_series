@@ -26,15 +26,20 @@ def main(X_train, y_train, X_test, y_test, window_size=None, overlap=10) -> None
         model_input = torch.cat((tokens, pos_encoding), dim=-1)
         model_inputs.append(model_input)
         print("Time series data: ", i)
-    padded_window_seq = pad_window_interval(model_inputs)
-    padded_input_seq = pad_sequence(padded_window_seq, batch_first=True)
-    padded_input_seq = padded_input_seq.float()
+    
+    input_seq = torch.tensor(model_inputs)
+    # padded_window_seq = pad_window_interval(model_inputs)
+    # padded_input_seq = pad_sequence(padded_window_seq, batch_first=True)
+    # padded_input_seq = padded_input_seq.float()
 
-    dataset = PTBXL(padded_input_seq, y_train.to(device))
+    dataset = PTBXL(input_seq, y_train.to(device))
     dataloader = DataLoader(dataset, batch_size=8, shuffle=True)
     
     print("Dataset ready")
-    size, seq_len, window_size, channels = padded_input_seq.shape
+    size, seq_len, window_size, channels = input_seq.shape
+
+    print("Window size", window_size)
+    print("Channels", channels)
 
     input_dim = window_size * channels   # Number of features (12 channels + positional encoding) * window size
     d_model = 64                         # Dimension of embeddings (output from transformer)
@@ -96,11 +101,13 @@ def main(X_train, y_train, X_test, y_test, window_size=None, overlap=10) -> None
         model_input = torch.cat((tokens, pos_encoding), dim=-1)
         model_inputs.append(model_input)
         print("Time series data: ", i)
-    padded_window_seq = pad_window_interval(model_inputs)
-    padded_input_seq = pad_sequence(padded_window_seq, batch_first=True)
-    padded_input_seq = padded_input_seq.float()
 
-    dataset = PTBXL(padded_input_seq, y_test.to(device))
+    input_seq = torch.tensor(model_inputs)
+    # padded_window_seq = pad_window_interval(model_inputs)
+    # padded_input_seq = pad_sequence(padded_window_seq, batch_first=True)
+    # padded_input_seq = padded_input_seq.float()
+
+    dataset = PTBXL(input_seq, y_test.to(device))
     test_loader = DataLoader(dataset, batch_size=8, shuffle=True)
     
     print("Evaluation starts!")
@@ -140,7 +147,7 @@ if __name__ == "__main__":
     y_test = torch.tensor(y_test.cat.codes.values, dtype=torch.long)
 
     print("Data loaded")
-    main(X_train, y_train, X_test, y_test)
+    main(X_train, y_train, X_test, y_test, 300)
 
 
    
