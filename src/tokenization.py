@@ -33,10 +33,9 @@ def fixed_window_tokens(time_series: torch.Tensor, window_size: int, overlap: in
 
     for i in range(0, timesteps, step_size):
         window = time_series[i:i + window_size]
-        
         # If window shorter than window size, pad it
         if window.shape[0] < window_size:
-            padding = torch.zeros((window_size - window.shape[0], channels), device=window.device)
+            padding = torch.zeros((window_size - window.shape[0], channels))
             window = torch.vstack((window, padding))
         features.append(generate_token(window))
 

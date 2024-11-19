@@ -17,7 +17,6 @@ class TimeSeriesTransformer(nn.Module):
 
     def forward(self, x):
         # x: shape [batch_size, seq_len, window_size, channels]
-        print(x.shape)
         batch_size, seq_len, window_size, channels = x.shape
         flatten_x = x.view(batch_size, seq_len, window_size * channels)
 
