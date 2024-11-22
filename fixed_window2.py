@@ -11,7 +11,6 @@ from tqdm import tqdm
 from torch.utils.data import Dataset, DataLoader
 from src.dataset import PTBXL
 import matplotlib.pyplot as plt
-import sys
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -28,9 +27,6 @@ def main(X_train, y_train, X_test, y_test, window_size=None, overlap=10) -> None
         model_inputs.append(model_input)
     
     input_seq = torch.stack(model_inputs).float()
-    # padded_window_seq = pad_window_interval(model_inputs)
-    # padded_input_seq = pad_sequence(padded_window_seq, batch_first=True)
-    # padded_input_seq = padded_input_seq.float()
 
     dataset = PTBXL(input_seq, y_train.to(device))
     dataloader = DataLoader(dataset, batch_size=32, shuffle=True)
@@ -39,11 +35,11 @@ def main(X_train, y_train, X_test, y_test, window_size=None, overlap=10) -> None
     size, seq_len, new_window_size, channels = input_seq.shape
 
     input_dim = new_window_size * channels   # Number of features (12 channels + positional encoding) * window size
-    d_model = 64                         # Dimension of embeddings (output from transformer)
-    num_heads = 8                        # Number of attention heads
-    num_layers = 6                       # Number of encoder layers
-    dim_feedforward = 256                # Feedforward layer dimension
-    dropout = 0.1                        # Dropout rate
+    d_model = 64                             # Dimension of embeddings (output from transformer)
+    num_heads = 8                            # Number of attention heads
+    num_layers = 6                           # Number of encoder layers
+    dim_feedforward = 256                    # Feedforward layer dimension
+    dropout = 0.1                            # Dropout rate
     num_classes = 5
     learning_rate = 1e-4
     num_epochs = 10
@@ -99,9 +95,6 @@ def main(X_train, y_train, X_test, y_test, window_size=None, overlap=10) -> None
         model_inputs.append(model_input)
 
     input_seq = torch.stack(model_inputs).float()
-    # padded_window_seq = pad_window_interval(model_inputs)
-    # padded_input_seq = pad_sequence(padded_window_seq, batch_first=True)
-    # padded_input_seq = padded_input_seq.float()
 
     dataset = PTBXL(input_seq, y_test.to(device))
     test_loader = DataLoader(dataset, batch_size=32, shuffle=True)
@@ -124,20 +117,9 @@ def main(X_train, y_train, X_test, y_test, window_size=None, overlap=10) -> None
 if __name__ == "__main__":
 
     print("Pipeline started!")
-    # Load and prepare data
-    # path = './dataset/ecg/WFDB_PTBXL/ptbxl/'
-    dataset_path = {
-        '0': '../high_modality/ecg/WFDB_PTBXL/ptb-xl-a-large-publicly-available-electrocardiography-dataset-1.0.3/',
-        '1': '../high_modality/ecg/WFDB_ChapmanShaoxing/'
-    }
 
-    dataset = sys.argv[1]
-
-    path = dataset_path[dataset]
+    path = '../high_modality/ecg/WFDB_PTBXL/ptb-xl-a-large-publicly-available-electrocardiography-dataset-1.0.3/'
     sampling_rate=100
-
-    print("Running on dataset:", path)
-
     X_train, y_train, X_test, y_test = load_data(path, sampling_rate)
 
     # remove data without labels

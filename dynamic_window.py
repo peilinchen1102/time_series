@@ -11,7 +11,6 @@ from tqdm import tqdm
 from torch.utils.data import Dataset, DataLoader
 from src.dataset import PTBXL
 import matplotlib.pyplot as plt
-import sys
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -126,18 +125,8 @@ if __name__ == "__main__":
     print("Pipeline started!")
     # Load and prepare data
     # path = './dataset/ecg/WFDB_PTBXL/ptbxl/'
-    dataset_path = {
-        '0': '../high_modality/ecg/WFDB_PTBXL/ptb-xl-a-large-publicly-available-electrocardiography-dataset-1.0.3/',
-        '1': '../high_modality/ecg/WFDB_ChapmanShaoxing/'
-    }
-
-    dataset = sys.argv[1]
-
-    path = dataset_path[dataset]
+    path = '../high_modality/ecg/WFDB_PTBXL/ptb-xl-a-large-publicly-available-electrocardiography-dataset-1.0.3/'
     sampling_rate=100
-
-    print("Running on dataset:", path)
-
     X_train, y_train, X_test, y_test = load_data(path, sampling_rate)
 
     # remove data without labels
