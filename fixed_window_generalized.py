@@ -97,37 +97,16 @@ if __name__ == "__main__":
 
     print("Pipeline started!")
     
+    print("GPU:", torch.cuda.current_device())
     dataset_name = sys.argv[1]
     dataset = DATASET_DICT[dataset_name]
-    train_dataset = dataset(base_root="../high_modality", window_size=10, overlap=5, train=True, download=False, dataset_name=dataset_name)
-    test_dataset = dataset(base_root="../high_modality", window_size=10, overlap=5, train=False, download=False, dataset_name=dataset_name)
+    train_dataset = dataset(base_root="../high_modality_local", window_size=10, overlap=5, train=True, download=False, dataset_name=dataset_name)
+    test_dataset = dataset(base_root="../high_modality_local", window_size=10, overlap=5, train=False, download=False, dataset_name=dataset_name)
     
     print(f"Train dataset length: {train_dataset.subject_data.shape}")
     print(f"Test dataset length: {test_dataset.subject_data.shape}")
     main(train_dataset, test_dataset)
 
-    # X_train = []
-    # y_train = []
-    # X_test = []
-    # y_test = []
-
-    # # Load training data into X_train, y_train
-    # for index in range(len(train_dataset)):
-    #     _, measurements, label = train_dataset[index]
-    #     X_train.append(measurements.numpy())
-    #     y_train.append(label)
-
-    # # Load testing data into X_test, y_test
-    # for index in range(len(test_dataset)):
-    #     _, measurements, label = test_dataset[index]
-    #     X_test.append(measurements.numpy())
-    #     y_test.append(label)
-
-    # # Convert the lists to numpy arrays (or tensors if needed)
-    # X_train = np.array(X_train)
-    # y_train = np.array(y_train)
-    # X_test = np.array(X_test)
-    # y_test = np.array(y_test)
 
 
 
