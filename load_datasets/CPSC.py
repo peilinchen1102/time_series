@@ -9,6 +9,7 @@ import tqdm
 from scipy.io import loadmat
 from scipy.signal import decimate, resample
 from torchvision.datasets.utils import download_and_extract_archive
+from src.preprocess import preprocess
 
 class Input1dSpec(object):
     '''Defines the specs for 1d inputs.'''
@@ -52,10 +53,12 @@ class CPSC(data.Dataset):
     def __init__(
         self,
         base_root: str,
+        window_size: int,
+        overlap: int,
         download: bool = False,
         train: bool = True,
         dataset_name: str = 'CPSC',
-        finetune_size: str = None
+        finetune_size: str = 'full',
     ) -> None:
         super().__init__()
         self.base_root = base_root
@@ -64,6 +67,9 @@ class CPSC(data.Dataset):
         self.mode = 'train' if train else 'val'
         self.finetune_size = 0 if finetune_size is None else CPSC.LABEL_FRACS[finetune_size]
         self.ds_name = dataset_name
+        self.window_size = window_size
+        self.overlap = overlap
+        self.data = []
         if download:
             self.download_dataset()
 
@@ -117,7 +123,8 @@ class CPSC(data.Dataset):
                 # if insufficient examples, use all examples from that class
                 num_sample = min(self.finetune_size, count)
                 train_rows = df.loc[df.loc[:, 'label'] == label].sample(num_sample, random_state=0)
-                train_df = train_df.append(train_rows)
+                # train_df = train_df.append(train_rows)
+                train_df = pd.concat([train_df, train_rows], ignore_index=True)
 
             df = train_df
 
@@ -126,12 +133,12 @@ class CPSC(data.Dataset):
     def load_measurements(self, index):
         i = index
         recording = CPSC._read_recording(self.root, self.subject_data.iloc[i]["patient"], self.REC_DIMS)
-        label = self.subject_data.iloc[i]['label'].astype(int)
+        label = self.subject_data.iloc[i]['label']
         return recording, label
 
     def __getitem__(self, index):
-
         measurements, label = self.load_measurements(index)
+        measurements = preprocess(measurements, self.window_size, self.overlap)
         return (index, measurements, label)
 
     def __len__(self):

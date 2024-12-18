@@ -113,6 +113,7 @@ class ChapmanShaoxing(data.Dataset):
             if L != 5000:
                 drop_list.append(i)
             else:
+                recording = ChapmanShaoxing._read_recording(self.root, self.subject_data.iloc[i]["patient"], self.REC_DIMS)
                 recording = preprocess(recording, self.window_size, self.overlap)
                 label = df.iloc[i]['label']
                 self.data.append((recording, label))

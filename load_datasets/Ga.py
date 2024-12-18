@@ -9,6 +9,7 @@ import tqdm
 from scipy.io import loadmat
 from scipy.signal import decimate, resample
 from torchvision.datasets.utils import download_and_extract_archive
+from src.preprocess import preprocess
 
 class Input1dSpec(object):
     '''Defines the specs for 1d inputs.'''
@@ -52,10 +53,12 @@ class Ga(data.Dataset):
     def __init__(
         self,
         base_root: str,
+        window_size: int,
+        overlap: int,
         download: bool = False,
         train: bool = True,
         dataset_name: str = 'Ga',
-        finetune_size: str = 'large'
+        finetune_size: str = 'full'
     ) -> None:
         super().__init__()
         self.base_root = base_root
@@ -64,6 +67,9 @@ class Ga(data.Dataset):
         self.mode = 'train' if train else 'val'
         self.finetune_size = 0 if finetune_size is None else Ga.LABEL_FRACS[finetune_size]
         self.ds_name = dataset_name
+        self.window_size = window_size
+        self.overlap = overlap
+        self.data = []
         if download:
             self.download_dataset()
 
@@ -133,6 +139,7 @@ class Ga(data.Dataset):
     def __getitem__(self, index):
 
         measurements, label = self.load_measurements(index)
+        measurements = preprocess(measurements, self.window_size, self.overlap)
         return (index, measurements, label)
 
     def __len__(self):

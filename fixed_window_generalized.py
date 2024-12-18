@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 from load_datasets.catalog import DATASET_DICT
 import sys
 import numpy as np
+import time
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -48,6 +49,7 @@ def main(train_dataset, test_dataset) -> None:
 
     print("Training started!")
 
+    start_time = time.time()
     for epoch in range(num_epochs):
         model.train()
         running_loss = 0.0
@@ -68,6 +70,10 @@ def main(train_dataset, test_dataset) -> None:
         print(f'Average Loss: {average_loss:.4f}')
         torch.cuda.empty_cache()
     print("Training complete!")
+
+    end_time = time.time()
+    training_time = end_time - start_time
+    print(f"Training time: {training_time} seconds")
 
     model.eval()
 
@@ -100,8 +106,8 @@ if __name__ == "__main__":
     print("GPU:", torch.cuda.current_device())
     dataset_name = sys.argv[1]
     dataset = DATASET_DICT[dataset_name]
-    train_dataset = dataset(base_root="../high_modality_local", window_size=10, overlap=5, train=True, download=False, dataset_name=dataset_name)
-    test_dataset = dataset(base_root="../high_modality_local", window_size=10, overlap=5, train=False, download=False, dataset_name=dataset_name)
+    train_dataset = dataset(base_root="../local_ecg", window_size=10, overlap=5, train=True, download=False, dataset_name=dataset_name)
+    test_dataset = dataset(base_root="../local_ecg", window_size=10, overlap=5, train=False, download=False, dataset_name=dataset_name)
     
     print(f"Train dataset length: {train_dataset.subject_data.shape}")
     print(f"Test dataset length: {test_dataset.subject_data.shape}")
