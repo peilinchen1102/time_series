@@ -112,11 +112,6 @@ class ChapmanShaoxing(data.Dataset):
             _, L = recording.shape
             if L != 5000:
                 drop_list.append(i)
-            else:
-                recording = ChapmanShaoxing._read_recording(self.root, self.subject_data.iloc[i]["patient"], self.REC_DIMS)
-                recording = preprocess(recording, self.window_size, self.overlap)
-                label = df.iloc[i]['label']
-                self.data.append((recording, label))
         df = df.drop(drop_list, axis=0)
         df = df.reset_index(drop=True)
         if self.mode == 'train' and self.finetune_size > 0:
@@ -138,9 +133,9 @@ class ChapmanShaoxing(data.Dataset):
 
     def load_measurements(self, index):
         i = index
-        # recording = ChapmanShaoxing._read_recording(self.root, self.subject_data.iloc[i]["patient"], self.REC_DIMS)
-        # label = self.subject_data.iloc[i]['label']
-        return self.data[i]
+        recording = ChapmanShaoxing._read_recording(self.root, self.subject_data.iloc[i]["patient"], self.REC_DIMS)
+        label = self.subject_data.iloc[i]['label']
+        return recording, label
 
     def __getitem__(self, index):
 

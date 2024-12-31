@@ -80,3 +80,4 @@ def tokenize(time_series: torch.Tensor, window_size: int, overlap: int, change_p
         return fixed_window_tokens(time_series, window_size, overlap)
     else:
         return variable_window_tokens(time_series, change_points, overlap)
+    

@@ -107,6 +107,9 @@ class CPSC(data.Dataset):
         for i in tqdm.tqdm(range(df.shape[0])):
             id = df.iloc[i]["patient"]
             file_name = self.root + '/' + id
+            if not os.path.exists(file_name+".mat"):
+                print(f"File not found: {file_name}")
+                continue
             recording = CPSC._process_recording(file_name)
             _, L = recording.shape
             if L != 5000:
@@ -169,7 +172,6 @@ class CPSC(data.Dataset):
     @staticmethod
     def _process_recording(file_name: str):
         recording = loadmat(f"{file_name}.mat")['val'].astype(float)
-
         # Standardize sampling rate, sampling rate across different datasets here are already normalized by data provider Physionet, but we added this logic in case users want to use their own new datasets
         sampling_rate = CPSC._get_sampling_rate(file_name)
 

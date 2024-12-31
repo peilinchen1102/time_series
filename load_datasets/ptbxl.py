@@ -8,6 +8,7 @@ import torch.utils.data as data
 from scipy.io import loadmat
 from scipy.signal import decimate, resample
 from torchvision.datasets.utils import download_and_extract_archive
+from src.preprocess import preprocess
 
 class Input1dSpec(object):
     '''Defines the specs for 1d inputs.'''
@@ -45,16 +46,18 @@ class ptbxl(data.Dataset):
         'CPSC': 'WFDB_CPSC2018',
         'Chapman-Shaoxing': 'WFDB_ChapmanShaoxing',
         'Ga': 'WFDB_Ga',
-        'ptbxl': 'WFDB_PTBXL'
+        'ptbxl': 'ptbxl/WFDB'
     }  # Dict to map datasets with different folder names
 
     def __init__(
         self,
         base_root: str,
+        window_size: int,
+        overlap: int,
         download: bool = False,
         train: bool = True,
         dataset_name: str = 'ptbxl',
-        finetune_size: str = None
+        finetune_size: str = 'full'
     ) -> None:
         super().__init__()
         self.base_root = base_root
@@ -63,6 +66,8 @@ class ptbxl(data.Dataset):
         self.mode = 'train' if train else 'val'
         self.finetune_size = 0 if finetune_size is None else ptbxl.LABEL_FRACS[finetune_size]
         self.ds_name = dataset_name
+        self.window_size = window_size
+        self.overlap = overlap
         if download:
             self.download_dataset()
 
@@ -95,6 +100,7 @@ class ptbxl(data.Dataset):
         data = pd.read_csv(self.csv + f'/{self.ds_name}_splits.csv')
         data = data[data.split == self.mode].reset_index(drop=True)
         df = data.copy()
+        
         if self.mode == 'train' and self.finetune_size > 0:
             # Get counts for every label
             unique_counts = df.loc[:, 'label'].value_counts()
@@ -105,7 +111,8 @@ class ptbxl(data.Dataset):
                 # if insufficient examples, use all examples from that class
                 num_sample = min(self.finetune_size, count)
                 train_rows = df.loc[df.loc[:, 'label'] == label].sample(num_sample, random_state=0)
-                train_df = train_df.append(train_rows)
+                # train_df = train_df.append(train_rows)
+                train_df = pd.concat([train_df, train_rows], axis=0)
 
             df = train_df
 
@@ -118,9 +125,9 @@ class ptbxl(data.Dataset):
         return recording, label
 
     def __getitem__(self, index):
-
         measurements, label = self.load_measurements(index)
-        return (index, measurements, label)
+        measurements = preprocess(measurements, self.window_size, self.overlap)
+        return (index, measurements, label) 
 
     def __len__(self):
         return self.subject_data.shape[0]
